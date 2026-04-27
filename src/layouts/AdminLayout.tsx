@@ -3,9 +3,10 @@ import { AppSidebar } from "@/components/AppSide"
 import { FileText, ShieldCheck, Users, Loader2 } from "lucide-react"
 import { useTurmas } from "@/hooks/useTurmas"
 import { TurmaCard } from "@/components/TurmaCard" // Importando o novo componente
+import { Busca } from "@/components/Busca"
 
 export function AdminLayout() {
-  const { turmas, loading, deletarTurma, deletarSomenteProva, buscarTurmas, adicionarNovaProva } = useTurmas();
+  const { turmas, turmasFiltradas, busca, setBusca, loading, deletarTurma, deletarSomenteProva, buscarTurmas, adicionarNovaProva, renovarLink, obterLinkAdmin } = useTurmas();
 
   return (
     <SidebarProvider>
@@ -32,7 +33,9 @@ export function AdminLayout() {
                <StatsCard title="Status Storage" value="Ativo" icon={<ShieldCheck className="h-4 w-4" />} />
                <StatsCard title="Arquivos PDF" value={turmas.filter(t => t.pdf_url).length.toString()} icon={<FileText className="h-4 w-4" />} />
             </div>
-
+            <div className=" mb-8">
+              <Busca valor={busca} onChange={setBusca} />
+            </div>
             <h3 className="mb-6 text-lg font-bold text-[#001F3F] flex items-center gap-2">
               Controle de Turmas
             </h3>
@@ -41,7 +44,7 @@ export function AdminLayout() {
               <div className="flex py-20 justify-center"><Loader2 className="animate-spin text-slate-400" /></div>
             ) : (
               <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {turmas.map((turma) => (
+                {turmasFiltradas.map((turma) => (
                   <TurmaCard 
                     key={turma.id}
                     turma={turma}
@@ -49,6 +52,9 @@ export function AdminLayout() {
                     onDeletarProva={deletarSomenteProva}
                     onDeletarTurma={deletarTurma}
                     onAdicionarProva={adicionarNovaProva}
+                    onRenovarLink={renovarLink}
+                    onObterLinkAdmin={obterLinkAdmin}
+
                   />
                 ))}
               </div>

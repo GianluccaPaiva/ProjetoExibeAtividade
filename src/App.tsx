@@ -5,8 +5,10 @@ import { supabase } from "@/lib/supabase";
 // Importe os seus componentes aqui
 import { AdminLayout } from "./layouts/AdminLayout";
 import { ProvaPublica } from "./pages/ProvaPublica";
-import { Login } from "./components/Login"; // O componente que você acabou de mandar
+
 import { BemVindo } from "./pages/BemVindo";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LayoutAutenticacao } from "./layouts/LayoutAutenticacao";
 
 function App() {
   const [session, setSession] = useState<any>(null);
@@ -38,13 +40,17 @@ function App() {
       {/* ROTA DE LOGIN (O SEU COMPONENTE) */}
       <Route 
         path="/login" 
-        element={!session ? <Login /> : <Navigate to="/admin" replace />} 
+        element={!session ? <LayoutAutenticacao/>: <Navigate to="/admin" replace />} 
       />
 
       {/* ROTA DO ADMINISTRADOR (PROTEGIDA) */}
       <Route 
         path="/admin/*" 
-        element={session ? <AdminLayout /> : <Navigate to="/login" replace />} 
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        } 
       />
 
       {/* REDIRECIONAMENTO INICIAL */}

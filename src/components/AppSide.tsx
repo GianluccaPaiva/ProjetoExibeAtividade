@@ -99,7 +99,7 @@ export function AppSidebar( { onTurmaCriada }: AppSidebarProps ) {
                 onClick={handleLogout} 
                 className="text-red-500 cursor-pointer focus:bg-red-50 focus:text-red-500 font-bold"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut onClick={handleLogout} className="mr-2 h-4 w-4" />
                 <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

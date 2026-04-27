@@ -1,30 +1,50 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
-    // Verifica a sessão atual
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    async function validateAuth() {
+      try {
+        // getUser() é uma chamada de rede que valida o JWT no servidor.
+        // Diferente de getSession(), ele não pode ser burlado com dados falsos no localStorage.
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error || !user) {
+          setAuthorized(false);
+        } else {
+          setAuthorized(true);
+        }
+      } catch {
+        setAuthorized(false);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    // Escuta mudanças na autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    validateAuth();
+  }, [location.pathname]);
 
-    return () => subscription.unsubscribe();
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+        <p className="mt-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+          Validando Credenciais...
+        </p>
+      </div>
+    );
+  }
 
-  if (loading) return null; // Ou um loading spinner
-
-  if (!session) {
-    return <Navigate to="/" replace />;
+  if (!authorized) {
+    // Redireciona para o login e salva a página que ele tentou acessar
+    // para voltar pra ela depois do login (opcional)
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
