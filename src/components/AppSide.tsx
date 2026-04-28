@@ -1,31 +1,21 @@
 import { 
 
-  User, 
-  ChevronUp,
   LogOut,
 } from "lucide-react"
 
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
+
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
-  useSidebar,
+
 } from "@/components/ui/sidebar"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import { GestaoProvasDialog } from "./GestaoProvasDialog" // O componente de Dialog que criamos
 import { useSide } from "@/hooks/useSide"
 import { Button } from "@base-ui/react"
