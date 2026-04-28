@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { MostraGabarito } from "@/components/MostraGabarito";
+import { MostraProva } from "@/components/MostraProva";
 import { Loader2, AlertTriangle } from "lucide-react";
 
 export function ProvaPublica() {
@@ -50,7 +50,7 @@ export function ProvaPublica() {
 
   return (
     <div className="min-h-screen bg-slate-900 py-10 px-4">
-      <MostraGabarito turma={dados.nome_turma} pdfUrl={dados.pdf_url} />
+      <MostraProva turma={dados.nome_turma} pdfUrl={dados.pdf_url} />
     </div>
   );
 }
