@@ -22,9 +22,14 @@ export function AdminLayout() {
 
           <div className="mx-auto w-full max-w-7xl px-6 py-8 md:px-8">
             <div className="mb-8 rounded-2xl border border-slate-200/70 bg-white/85 p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Área do Aplicador</p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Bem-vindo, Aplicador</h1>
-              <p className="mt-2 text-sm text-slate-600">Gerencie turmas e arquivos de prova anexados.</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Área do Aplicador</p>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <img src="/expirium2.png" alt="logo" width={200} height={200} className="shrink-0" />
+                <div>
+                  <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Bem-vindo, Aplicador</h1>
+                  <p className="mt-2 text-sm text-slate-600">Gerencie turmas e arquivos de prova anexados.</p>
+                </div>
+              </div>
             </div>
 
             {/* Cards de Estatísticas Rápidas */}
