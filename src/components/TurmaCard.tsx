@@ -124,7 +124,7 @@ export function TurmaCard({
           </Dialog>
         )}
 
-        {/* ... (Restante do card: Área de Visualização/Upload e Excluir continua igual ao seu código) ... */}
+        
         <div className="flex w-full overflow-hidden rounded-xl border-2 border-slate-800 bg-slate-900/50">
            {turma.pdf_url ? (
              <div className="flex w-full">
