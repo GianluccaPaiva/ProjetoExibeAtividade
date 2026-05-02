@@ -22,10 +22,17 @@ export function useMostraProva() {
 
     // 2. Ativação da Proteção (Perda de foco ou mudança de aba)
     // Usamos uma única função para garantir rapidez
-    const ativarProtecao = () => {
-      setEstaProtegido(true);
-      navigator.clipboard.writeText(""); // Limpa o que foi printado se possível
-    };
+// No seu hook useMostraProva.ts
+      const ativarProtecao = () => {
+        // Define o estado imediatamente
+        setEstaProtegido(true);
+        
+        // Limpa o clipboard (área de transferência) 
+        // Isso tenta apagar a imagem que o Windows acabou de copiar
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText("Acesso Protegido - Nexus");
+        }
+      };
 
     // 3. Vigilância de Visibilidade e Foco
     const lidarComMudancaVisibilidade = () => {
