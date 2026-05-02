@@ -4,44 +4,47 @@ export function useMostraProva() {
   const [estaProtegido, setEstaProtegido] = useState(false);
 
   useEffect(() => {
-    // 1. Bloqueio de Botão Direito e Atalhos
+    // 1. Bloqueio de Botão Direito e Atalhos de Inspeção/Cópia
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Bloqueia Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (Source)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
+      // Bloqueia Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (Source), Ctrl+C (Copy)
+      if ((e.ctrlKey || e.metaKey) && ['p', 's', 'u', 'c'].includes(e.key.toLowerCase())) {
         e.preventDefault();
       }
-      // Tentativa de detectar PrintScreen
-      if (e.key === 'PrintScreen') {
+      
+      // Detecção da tecla PrintScreen (funciona em alguns navegadores/sistemas)
+      if (e.key === 'PrintScreen' || e.key === 'Snapshot') {
         setEstaProtegido(true);
         navigator.clipboard.writeText(""); 
       }
     };
 
-    // 2. Detecção de Mudança de Aba ou Minimização
-    const lidarComVisibilidade = () => {
-      if (document.visibilityState === 'hidden') {
-        setEstaProtegido(true);
+    // 2. Ativação da Proteção (Perda de foco ou mudança de aba)
+    // Usamos uma única função para garantir rapidez
+    const ativarProtecao = () => {
+      setEstaProtegido(true);
+      navigator.clipboard.writeText(""); // Limpa o que foi printado se possível
+    };
+
+    // 3. Vigilância de Visibilidade e Foco
+    const lidarComMudancaVisibilidade = () => {
+      if (document.hidden || document.visibilityState === 'hidden') {
+        ativarProtecao();
       }
     };
 
-    // 3. Detecção de Perda de Foco (Alt+Tab ou ferramentas de captura externas)
-    const pausarAcesso = () => setEstaProtegido(true);
-    const retomarAcesso = () => setEstaProtegido(false);
-
+    // Eventos Globais
     document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("visibilitychange", lidarComVisibilidade);
-    window.addEventListener("blur", pausarAcesso);
-    window.addEventListener("focus", retomarAcesso);
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("visibilitychange", lidarComMudancaVisibilidade);
+    window.addEventListener("blur", ativarProtecao);
 
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("visibilitychange", lidarComVisibilidade);
-      window.removeEventListener("blur", pausarAcesso);
-      window.removeEventListener("focus", retomarAcesso);
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("visibilitychange", lidarComMudancaVisibilidade);
+      window.removeEventListener("blur", ativarProtecao);
     };
   }, []);
 
