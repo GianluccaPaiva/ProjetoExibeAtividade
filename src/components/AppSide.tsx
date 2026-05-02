@@ -24,7 +24,7 @@ type AppSidebarProps = {
   onTurmaCriada: () => void; // Função para atualizar a lista de turmas no AdminLayout
 }
 export function AppSidebar( { onTurmaCriada }: AppSidebarProps ) {
-   const{ navItems, settingsItems, handleLogout } = useSide()
+   const{ handleLogout } = useSide()
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">

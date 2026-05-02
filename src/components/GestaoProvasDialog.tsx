@@ -47,7 +47,7 @@ export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
           className="flex w-full items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer transition-colors"
         >
           <PlusCircle size={18} className="shrink-0" />
-          <span>Nova Prova por Turma</span>
+          <span>Criar turma com/sem prova</span>
         </div>
       </DialogTrigger>
 

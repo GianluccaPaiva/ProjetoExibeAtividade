@@ -256,24 +256,38 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state } = useSidebar()
+
+  const isCollapsed = state === "collapsed"
 
   return (
-    <Button
-      data-sidebar="trigger"
-      data-slot="sidebar-trigger"
-      variant="ghost"
-      size="icon-sm"
-      className={cn(className)}
-      onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
-      {...props}
-    >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger >
+        <Button
+          data-sidebar="trigger"
+          data-slot="sidebar-trigger"
+          variant="ghost"
+          size="icon-sm"
+          aria-pressed={isCollapsed}
+          title={isCollapsed ? "Ampliar barra lateral" : "Encurtar barra lateral"}
+          className={cn(
+            "rounded-md p-1 text-slate-700 hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors",
+            className
+          )}
+          onClick={(event) => {
+            onClick?.(event)
+            toggleSidebar()
+          }}
+          {...props}
+        >
+          <PanelLeftIcon className={cn("h-4 w-4 transition-transform", isCollapsed ? "rotate-180" : "rotate-0")} />
+          <span className="sr-only">Alternar barra lateral</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {isCollapsed ? "Ampliar barra lateral (Ctrl/Cmd+B)" : "Encurtar barra lateral (Ctrl/Cmd+B)"}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

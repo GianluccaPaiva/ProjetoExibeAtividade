@@ -4,49 +4,46 @@ export function useMostraProva() {
   const [estaProtegido, setEstaProtegido] = useState(false);
 
   useEffect(() => {
-    // 1. Bloqueio de Botão Direito e Atalhos
+    // Bloqueia clique direito globalmente na página da prova
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Bloqueia Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (Source)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
+      const keysBloqueadas = ['p', 's', 'u', 'c', 'i', 'j'];
+      if (
+        e.key === 'PrintScreen' || 
+        e.key === 'Snapshot' || 
+        e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && keysBloqueadas.includes(e.key.toLowerCase()))
+      ) {
         e.preventDefault();
-      }
-      // Tentativa de detectar PrintScreen
-      if (e.key === 'PrintScreen') {
-        setEstaProtegido(true);
-        navigator.clipboard.writeText(""); 
-      }
-    };
-
-    // 2. Detecção de Mudança de Aba ou Minimização
-    const lidarComVisibilidade = () => {
-      if (document.visibilityState === 'hidden') {
         setEstaProtegido(true);
       }
     };
 
-    // 3. Detecção de Perda de Foco (Alt+Tab ou ferramentas de captura externas)
-    const pausarAcesso = () => setEstaProtegido(true);
-    const retomarAcesso = () => setEstaProtegido(false);
+    const ativarProtecao = () => {
+      setEstaProtegido(true);
+      try { navigator.clipboard.writeText(""); } catch (err) {}
+    };
+
+    const handleMouseOut = (e: MouseEvent) => {
+      if (e.relatedTarget === null) ativarProtecao();
+    };
 
     document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("visibilitychange", lidarComVisibilidade);
-    window.addEventListener("blur", pausarAcesso);
-    window.addEventListener("focus", retomarAcesso);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("blur", ativarProtecao);
+    document.addEventListener("mouseout", handleMouseOut);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) ativarProtecao();
+    });
 
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("visibilitychange", lidarComVisibilidade);
-      window.removeEventListener("blur", pausarAcesso);
-      window.removeEventListener("focus", retomarAcesso);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("blur", ativarProtecao);
+      document.removeEventListener("mouseout", handleMouseOut);
     };
   }, []);
 
-  return {
-    estaProtegido,
-    setEstaProtegido
-  };
+  return { estaProtegido, setEstaProtegido };
 }
