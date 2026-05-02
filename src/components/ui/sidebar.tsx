@@ -262,7 +262,7 @@ function SidebarTrigger({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger >
         <Button
           data-sidebar="trigger"
           data-slot="sidebar-trigger"
