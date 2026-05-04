@@ -1,3 +1,5 @@
+// src/components/admin/GestaoProvasDialog.tsx
+
 import { PlusCircle, FileUp, Loader2, ClipboardList } from "lucide-react";
 import {
   Dialog,
@@ -14,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useGestaoProvas } from "@/hooks/useGestaoProvas";
 
 interface GestaoProvasDialogProps {
-  onTurmaCriada: () => void; // Prop para disparar o buscarTurmas do AdminLayout
+  onTurmaCriada: () => void;
 }
 
 export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
@@ -30,14 +32,19 @@ export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
     handleFinalizar,
   } = useGestaoProvas(onTurmaCriada);
 
-
+  // Função auxiliar para definir o texto de exibição do arquivo
+  const getTextoArquivo = () => {
+    if (arquivosSelecionados === 0) return "Clique para selecionar PDF ou Fotos";
+    if (arquivosSelecionados === 1) return "1 arquivo selecionado";
+    return `${arquivosSelecionados} arquivos selecionados`;
+  };
 
   return (
     <Dialog 
       open={open} 
       onOpenChange={(val) => {
         setOpen(val);
-        if (!val) onTurmaCriada(); // Garante atualização ao fechar no X
+        if (!val) onTurmaCriada(); 
       }}
     >
       <DialogTrigger>
@@ -57,7 +64,7 @@ export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
             <ClipboardList className="text-primary" /> Configurar Prova
           </DialogTitle>
           <DialogDescription>
-            Crie uma turma e anexe as imagens da prova para gerar o PDF.
+            Crie uma turma e anexe o **PDF** pronto ou **fotos** das páginas para gerar o arquivo.
           </DialogDescription>
         </DialogHeader>
 
@@ -74,25 +81,27 @@ export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Imagens da Prova (Páginas)</Label>
+            <Label>Arquivo da Prova (PDF ou Imagens)</Label>
             <div 
               onClick={() => fileInputRef.current?.click()}
               className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-primary/5 cursor-pointer transition-all"
             >
               <FileUp className={arquivosSelecionados > 0 ? "text-primary" : "text-muted-foreground"} size={32} />
-              <span className="text-sm font-medium">
-                {arquivosSelecionados > 0 
-                  ? `${arquivosSelecionados} imagens selecionadas` 
-                  : "Clique para selecionar as fotos"}
+              <span className="text-sm font-medium text-center">
+                {getTextoArquivo()}
               </span>
               <input 
                 type="file" 
                 ref={fileInputRef} 
                 multiple 
-                accept="image/*" 
+                // MUDANÇA AQUI: Aceita PDF e Imagens
+                accept="image/*,application/pdf" 
                 className="hidden" 
                 onChange={handleFileChange}
               />
+              <p className="text-[10px] text-muted-foreground">
+                Dica: Selecione várias fotos para criar um PDF único.
+              </p>
             </div>
           </div>
         </div>
@@ -100,12 +109,11 @@ export function GestaoProvasDialog({ onTurmaCriada }: GestaoProvasDialogProps) {
         <DialogFooter>
           <Button 
             className="w-full h-11 font-bold" 
-            // Removida a trava de arquivosSelecionados === 0 para permitir criar só a turma
             disabled={isProcessando || !nomeTurma} 
             onClick={handleFinalizar}
           >
             {isProcessando ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando PDF e Salvando...</>
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando Arquivos...</>
             ) : (
               "Criar Turma e Disponibilizar Prova"
             )}

@@ -144,7 +144,7 @@ export function TurmaCard({
              <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 py-4 text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors">
                <FileUp size={18} className="text-blue-400" />
                <span>Anexar Prova (PDF/IMG)</span>
-               <input type="file" className="hidden" multiple accept="image/*" onChange={(e) => onAdicionarProva(turma.id, e.target.files, turma.nome_turma)} />
+               <input type="file" className="hidden" multiple accept="image/*, application/pdf" onChange={(e) => onAdicionarProva(turma.id, e.target.files, turma.nome_turma)} />
              </label>
            )}
         </div>
