@@ -1,8 +1,10 @@
-import { ShieldAlert, FileText, ShieldCheck, Hand, AlertCircle } from "lucide-react";
-import { Viewer, Worker, SpecialZoomLevel } from '@react-pdf-viewer/core';
+import { useState } from "react";
+import { ShieldAlert, FileText, ShieldCheck, Hand, AlertCircle, Printer, Loader2 } from "lucide-react";
+import { Viewer, Worker, SpecialZoomLevel } from "@react-pdf-viewer/core";
 import { useMostraProva } from "@/hooks/useMostraProva";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import '@react-pdf-viewer/core/lib/styles/index.css';
+import { Button } from "@/components/ui/button";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 interface MostraProvaProps {
   turma: string;
@@ -11,6 +13,60 @@ interface MostraProvaProps {
 
 export function MostraProva({ turma, pdfUrl }: MostraProvaProps) {
   const { estaProtegido, setEstaProtegido } = useMostraProva();
+  const [imprimindo, setImprimindo] = useState(false);
+
+  const handleImprimir = async () => {
+    if (!pdfUrl || imprimindo) return;
+
+    try {
+      setImprimindo(true);
+
+      const response = await fetch(pdfUrl);
+      if (!response.ok) throw new Error("Falha ao baixar o PDF para impressão");
+
+      const blob = await response.blob();
+      const pdfBlob = new Blob([blob], { type: "application/pdf" });
+      const blobUrl = URL.createObjectURL(pdfBlob);
+
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "0";
+      iframe.src = blobUrl;
+
+      document.body.appendChild(iframe);
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          try {
+            iframe.focus();
+            iframe.contentWindow?.print();
+          } catch (err) {
+            console.error("Erro ao disparar impressão do iframe:", err);
+            window.open(blobUrl, "_blank");
+          } finally {
+            setImprimindo(false);
+            setTimeout(() => {
+              if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+              }
+              URL.revokeObjectURL(blobUrl);
+            }, 60000);
+          }
+        }, 400);
+      };
+    } catch (err) {
+      console.error("Erro ao imprimir PDF:", err);
+      setImprimindo(false);
+      const printWindow = window.open(pdfUrl, "_blank");
+      if (printWindow) {
+        printWindow.focus();
+      }
+    }
+  };
 
   if (!pdfUrl) {
     return (
@@ -26,10 +82,12 @@ export function MostraProva({ turma, pdfUrl }: MostraProvaProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media print { body { display: none !important; } }
         .no-select { user-select: none; -webkit-user-select: none; }
         /* Remove barras de rolagem indesejadas mas mantém a do PDF */
         .pdf-container::-webkit-scrollbar { display: none; }
+        @media print {
+          body { background: white !important; }
+        }
       `}} />
 
       <Card className="mx-auto w-full max-w-5xl border-none bg-slate-950 shadow-2xl relative no-select">
@@ -44,27 +102,48 @@ export function MostraProva({ turma, pdfUrl }: MostraProvaProps) {
             </p>
             <button 
               onClick={() => setTimeout(() => setEstaProtegido(false), 300)}
-              className="mt-8 px-10 py-3 bg-blue-600 text-white text-xs font-black rounded-full hover:bg-blue-500 transition-all uppercase"
+              className="mt-8 px-8 py-3 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-black rounded-xl shadow-lg shadow-blue-900/40 border border-blue-400/20 uppercase tracking-wider transition-all cursor-pointer"
             >
               Retomar Prova
             </button>
           </div>
         )}
 
-        <CardHeader className="bg-[#001F3F] text-white p-4 border-b border-white/10 relative z-30">
-          <div className="flex items-center justify-between">
+        <CardHeader className="bg-[#001F3F] text-white p-4 sm:p-5 border-b border-white/10 relative z-30">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-lg font-black uppercase">
-                <FileText className="text-blue-400" size={18} />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-black uppercase tracking-tight">
+                <FileText className="text-blue-400" size={20} />
                 Avaliação Nexus
               </CardTitle>
-              <CardDescription className="text-slate-400 text-[10px] font-bold uppercase">
-                Turma: <span className="text-blue-300">{turma}</span>
+              <CardDescription className="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                Turma: <span className="text-blue-300 font-black">{turma}</span>
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20">
-              <ShieldCheck size={12} className="text-green-400" />
-              <span className="text-[9px] font-black text-green-400 uppercase italic">Protegido</span>
+
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleImprimir}
+                disabled={imprimindo}
+                className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-blue-900/30 border border-blue-400/20 cursor-pointer disabled:opacity-50 disabled:pointer-events-none transition-all"
+              >
+                {imprimindo ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin text-white" />
+                    <span>Carregando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="h-4 w-4 text-blue-100" />
+                    <span>Imprimir Prova</span>
+                  </>
+                )}
+              </Button>
+
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 shadow-sm">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider italic">Protegido</span>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -79,12 +158,14 @@ export function MostraProva({ turma, pdfUrl }: MostraProvaProps) {
             ))}
           </div>
 
+          <div className="pdf-container absolute inset-0 z-0 overflow-hidden" />
+          
           {/* CAMADA DE INTERCEPTAÇÃO DE CLIQUE - pointer-events-none LIBERA O SCROLL */}
           {/* O bloqueio do clique direito é feito pelo Hook via JavaScript no nível do documento */}
           <div className="absolute inset-0 z-10 pointer-events-none bg-transparent" />
 
           {/* CONTAINER DO PDF - O 'hidden' garante o bloqueio imediato do PrintScreen */}
-          <div className={`relative w-full h-[75vh] bg-slate-800 transition-all ${estaProtegido ? 'hidden' : 'block'}`}>
+          <div className={`relative w-full h-[75vh] bg-slate-800 transition-all ${estaProtegido ? "hidden" : "block"}`}>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer
                 fileUrl={pdfUrl}
